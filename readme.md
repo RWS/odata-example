@@ -15,19 +15,24 @@ Example command to create Mickey as a Person in the service, using a sample json
 curl -i -X POST -d @src/samples/mickey.json http://localhost:8080/example.svc/Persons --header "Content-Type:application/json"
 ```
 
-The content structure that is posted looks as follows:
-```
-{ "@odata.context" : "http://localhost:8080/example.svc/$metadata#/Persons/$entity",
-"@odata.id" : "/Persons(55)",
-"id" : 55,
-"firstName" : "Mickey",
-"lastName" : "Mouse",
- "age" : 83
+The content structure that is posted looks as follows:  
+```json
+{ 
+    "@odata.context" : "http://localhost:8080/example.svc/$metadata#/Persons/$entity",  
+    "@odata.id" : "/Persons(55)",  
+    "id" : 55,  
+    "firstName" : "Mickey",  
+    "lastName" : "Mouse",  
+    "age" : 83  
 }
 ```
 
 We also have two more Persons (Donald and Scrooge), which you can post as following:
+
 ```
-curl -i -X POST -d @src/samples/donald.json http://localhost:8080/example.svc/Persons --header "Content-Type:application/json"
+curl -i -X POST -d @src/samples/donald.json http://localhost:8080/example.svc/Persons --header "Content-Type:application/json"          
+```
+
+```
 curl -i -X POST -d @src/samples/scrooge.json http://localhost:8080/example.svc/Persons --header "Content-Type:application/json"
 ```

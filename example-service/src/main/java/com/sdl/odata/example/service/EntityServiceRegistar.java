@@ -44,10 +44,15 @@ public class EntityServiceRegistar {
     public void registerEntities() throws ODataException {
         LOG.debug("Registering example entities");
 
-        oDataEdmRegistry.registerClasses(Lists.newArrayList(Person.class));
+        oDataEdmRegistry.registerClasses(Lists.newArrayList(
+                Person.class,
+                GetAverageAge.class
+        ));
 
         Person person = new Person("MyHero", "Darkwing", "Duck", 23);
 
         inMemoryDataSource.create(null, person, null);
+
+
     }
 }
