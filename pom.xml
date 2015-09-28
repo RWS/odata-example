@@ -69,57 +69,8 @@
         <java.version>1.8</java.version>
         <spring.boot.version>1.2.3.RELEASE</spring.boot.version>
 
-        <odata.version>2.0.0-SNAPSHOT</odata.version>
+        <odata.version>2.0.4</odata.version>
     </properties>
-
-    <distributionManagement>
-        <repository>
-            <id>releases-nexus</id>
-            <url>http://nexus.global.sdl.corp:8080/nexus/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>snapshots-nexus</id>
-            <url>http://nexus.global.sdl.corp:8080/nexus/content/repositories/snapshots/</url>
-            <uniqueVersion>false</uniqueVersion>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <repositories>
-        <repository>
-            <id>releases-nexus</id>
-            <name>Releases</name>
-            <url>http://nexus.global.sdl.corp:8080/nexus/content/repositories/releases</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>external</id>
-            <name>External plus internal</name>
-            <url>http://nexus.global.sdl.corp:8080/nexus/content/groups/external</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>snapshots-nexus</id>
-            <name>Snapshots</name>
-            <url>http://nexus.global.sdl.corp:8080/nexus/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
 
     <dependencyManagement>
         <dependencies>
@@ -135,8 +86,24 @@
             </dependency>
             <dependency>
                 <groupId>com.sdl</groupId>
+                <artifactId>odata_service</artifactId>
+                <version>${odata.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sdl</groupId>
+                <artifactId>odata_common</artifactId>
+                <version>${odata.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sdl</groupId>
                 <artifactId>odata_test</artifactId>
                 <version>${odata.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>18.0</version>
             </dependency>
 
             <dependency>
