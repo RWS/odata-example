@@ -17,19 +17,7 @@ package com.sdl.odata.example.datasource;
 
 import com.sdl.odata.api.ODataException;
 import com.sdl.odata.api.ODataSystemException;
-import com.sdl.odata.api.processor.query.ComparisonCriteria;
-import com.sdl.odata.api.processor.query.Criteria;
-import com.sdl.odata.api.processor.query.CriteriaFilterOperation;
-import com.sdl.odata.api.processor.query.ExpandOperation;
-import com.sdl.odata.api.processor.query.LimitOperation;
-import com.sdl.odata.api.processor.query.LiteralCriteriaValue;
-import com.sdl.odata.api.processor.query.OrderByOperation;
-import com.sdl.odata.api.processor.query.PropertyCriteriaValue;
-import com.sdl.odata.api.processor.query.QueryOperation;
-import com.sdl.odata.api.processor.query.SelectByKeyOperation;
-import com.sdl.odata.api.processor.query.SelectOperation;
-import com.sdl.odata.api.processor.query.SelectPropertiesOperation;
-import com.sdl.odata.api.processor.query.SkipOperation;
+import com.sdl.odata.api.processor.query.*;
 import com.sdl.odata.example.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,15 +36,19 @@ public class StrategyBuilder {
 
     private List<Predicate<Person>> predicates = new ArrayList<>();
     private int limit = Integer.MAX_VALUE;
+    private int skip = 0;
 
     public List<Predicate<Person>> buildCriteria(QueryOperation queryOperation) throws ODataException {
         buildFromOperation(queryOperation);
-
         return predicates;
     }
 
     public int getLimit() {
         return limit;
+    }
+
+    public int getSkip() {
+        return skip;
     }
 
     private void buildFromOperation(QueryOperation operation) throws ODataException {
@@ -68,8 +60,10 @@ public class StrategyBuilder {
             buildFromFilter((CriteriaFilterOperation)operation);
         } else if (operation instanceof LimitOperation) {
             buildFromLimit((LimitOperation) operation);
+//        } else if (operation instanceof CountOperation) {
+//            buildFromCount((CountOperation) operation);
         } else if (operation instanceof SkipOperation) {
-            //not supported for now
+            buildFromSkip((SkipOperation) operation);
         } else if (operation instanceof ExpandOperation) {
             //not supported for now
         } else if (operation instanceof OrderByOperation) {
@@ -86,6 +80,17 @@ public class StrategyBuilder {
         LOG.debug("Limit has been set to: {}", limit);
         buildFromOperation(operation.getSource());
     }
+
+    private void buildFromSkip(SkipOperation operation) throws ODataException {
+        this.skip = operation.getCount();
+        LOG.debug("Skip has been set to: {}", limit);
+        buildFromOperation(operation.getSource());
+    }
+
+//    private void buildFromCount(CountOperation operation) throws ODataException {
+//        LOG.debug("Counting {} records", operation.getSource().entitySetName());
+//        buildFromOperation(operation.getSource());
+//    }
 
     private void buildFromSelect(SelectOperation selectOperation) {
         LOG.debug("Selecting all persons, no predicates needed");
@@ -135,7 +140,4 @@ public class StrategyBuilder {
             return null;
         }
     }
-
-
-
 }

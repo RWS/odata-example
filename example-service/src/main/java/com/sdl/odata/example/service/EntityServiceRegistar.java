@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
 /**
  * @author rdevries
@@ -49,10 +50,13 @@ public class EntityServiceRegistar {
                 GetAverageAge.class
         ));
 
-        Person person = new Person("MyHero", "Darkwing", "Duck", 23);
+        List<Person> persons = Lists.newArrayList(
+                new Person("MyHero", "Darkwing", "Duck", 23),
+                new Person("Sidekick", "Launchpad", "McQuack", 35),
+                new Person("Waddlemeyer", "Gosalyn", "Mallard", 9));
 
-        inMemoryDataSource.create(null, person, null);
-
-
+        for (Person person : persons) {
+            inMemoryDataSource.create(null, person, null);
+        }
     }
 }

@@ -60,14 +60,14 @@ public class InMemoryDataSourceProvider implements DataSourceProvider {
         StrategyBuilder builder = new StrategyBuilder();
         List<Predicate<Person>> predicateList = builder.buildCriteria(queryOperation);
         int limit = builder.getLimit();
+        int skip = builder.getSkip();
 
         return () -> {
             LOG.debug("Executing query against in memory data");
             Stream<Person> personStream = inMemoryDataSource.getPersonConcurrentMap().values().stream();
 
             List<Person> filteredPersons = personStream.filter(p -> predicateList.stream()
-                    .allMatch(f -> f.test(p))).limit(limit).collect(Collectors.toList());
-
+                    .allMatch(f -> f.test(p))).skip(skip).limit(limit).collect(Collectors.toList());
 
             LOG.debug("Found {} persons matching query", filteredPersons.size());
 
