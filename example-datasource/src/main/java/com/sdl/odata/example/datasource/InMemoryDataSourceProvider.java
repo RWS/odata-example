@@ -16,6 +16,7 @@
 package com.sdl.odata.example.datasource;
 
 import com.sdl.odata.api.ODataException;
+import com.sdl.odata.api.edm.util.EdmUtil;
 import com.sdl.odata.api.parser.TargetType;
 import com.sdl.odata.api.processor.datasource.DataSource;
 import com.sdl.odata.api.processor.datasource.DataSourceProvider;
@@ -29,10 +30,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Collections.singletonList;
 
 /**
  * This is an example data source provide that uses in memory structures to demonstrate how to provide
@@ -61,15 +65,33 @@ public class InMemoryDataSourceProvider implements DataSourceProvider {
         List<Predicate<Person>> predicateList = builder.buildCriteria(queryOperation);
         int limit = builder.getLimit();
         int skip = builder.getSkip();
+        List<String> propertyNames = builder.getPropertyNames();
 
         return () -> {
             LOG.debug("Executing query against in memory data");
             Stream<Person> personStream = inMemoryDataSource.getPersonConcurrentMap().values().stream();
 
-            List<Person> filteredPersons = personStream.filter(p -> predicateList.stream()
-                    .allMatch(f -> f.test(p))).skip(skip).limit(limit).collect(Collectors.toList());
+            Stream<Person> filteredStream = personStream.filter(p -> predicateList.stream()
+                    .allMatch(f -> f.test(p)));
 
+            if (builder.isCount()) {
+                long count = filteredStream.count();
+                LOG.debug("Counted {} persons matching query", count);
+
+                return singletonList(count);
+            }
+
+            List<Person> filteredPersons = filteredStream.skip(skip).limit(limit).collect(Collectors.toList());
             LOG.debug("Found {} persons matching query", filteredPersons.size());
+
+            if (propertyNames != null && !propertyNames.isEmpty()) {
+                try {
+                    return singletonList(EdmUtil.getEdmPropertyValue(filteredPersons.get(0), propertyNames.get(0)));
+                } catch (IllegalAccessException e) {
+                    LOG.error(e.getMessage(), e);
+                    return Collections.emptyList();
+                }
+            }
 
             return filteredPersons;
         };
