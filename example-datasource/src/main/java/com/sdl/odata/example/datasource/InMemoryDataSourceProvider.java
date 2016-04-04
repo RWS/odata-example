@@ -86,6 +86,7 @@ public class InMemoryDataSourceProvider implements DataSourceProvider {
 
             if (propertyNames != null && !propertyNames.isEmpty()) {
                 try {
+                    LOG.debug("Selecting {} properties of person", propertyNames);
                     return singletonList(EdmUtil.getEdmPropertyValue(filteredPersons.get(0), propertyNames.get(0)));
                 } catch (IllegalAccessException e) {
                     LOG.error(e.getMessage(), e);
