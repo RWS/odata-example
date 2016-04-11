@@ -17,6 +17,9 @@ package com.sdl.odata.example.datasource;
 
 import com.sdl.odata.api.ODataException;
 import com.sdl.odata.api.ODataSystemException;
+import com.sdl.odata.api.parser.CountOption;
+import com.sdl.odata.api.parser.ODataUriUtil;
+import com.sdl.odata.api.parser.QueryOption;
 import com.sdl.odata.api.processor.query.ComparisonCriteria;
 import com.sdl.odata.api.processor.query.CountOperation;
 import com.sdl.odata.api.processor.query.Criteria;
@@ -31,9 +34,11 @@ import com.sdl.odata.api.processor.query.SelectByKeyOperation;
 import com.sdl.odata.api.processor.query.SelectOperation;
 import com.sdl.odata.api.processor.query.SelectPropertiesOperation;
 import com.sdl.odata.api.processor.query.SkipOperation;
+import com.sdl.odata.api.service.ODataRequestContext;
 import com.sdl.odata.example.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.collection.Iterator;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -49,12 +54,15 @@ public class StrategyBuilder {
 
     private List<Predicate<Person>> predicates = new ArrayList<>();
     private int limit = Integer.MAX_VALUE;
-    private int skip;
+    private int skip = 0;
     private boolean count;
+    private boolean includeCount;
     private List<String> propertyNames;
 
-    public List<Predicate<Person>> buildCriteria(QueryOperation queryOperation) throws ODataException {
+    public List<Predicate<Person>> buildCriteria(QueryOperation queryOperation, ODataRequestContext requestContext)
+            throws ODataException {
         buildFromOperation(queryOperation);
+        buildFromOptions(ODataUriUtil.getQueryOptions(requestContext.getUri()));
         return predicates;
     }
 
@@ -68,6 +76,10 @@ public class StrategyBuilder {
 
     public boolean isCount() {
         return count;
+    }
+
+    public boolean includeCount() {
+        return includeCount;
     }
 
     public List<String> getPropertyNames() {
@@ -95,6 +107,17 @@ public class StrategyBuilder {
             buildFromSelectProperties((SelectPropertiesOperation) operation);
         } else {
             throw new ODataSystemException("Unsupported query operation: " + operation);
+        }
+    }
+
+    private void buildFromOptions(scala.collection.immutable.List<QueryOption> queryOptions) {
+        Iterator<QueryOption> optIt = queryOptions.iterator();
+        while (optIt.hasNext()) {
+            QueryOption opt = optIt.next();
+            if (opt instanceof CountOption && ((CountOption) opt).value()) {
+                includeCount = true;
+                break;
+            }
         }
     }
 
