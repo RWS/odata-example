@@ -16,11 +16,13 @@
 package com.sdl.odata.example.datasource;
 
 import com.sdl.odata.api.ODataException;
+import com.sdl.odata.api.ODataSystemException;
 import com.sdl.odata.api.edm.model.EntityDataModel;
 import com.sdl.odata.api.parser.ODataUri;
 import com.sdl.odata.api.parser.ODataUriUtil;
 import com.sdl.odata.api.processor.datasource.DataSource;
 import com.sdl.odata.api.processor.datasource.ODataDataSourceException;
+import com.sdl.odata.api.processor.datasource.TransactionalDataSource;
 import com.sdl.odata.api.processor.link.ODataLink;
 import com.sdl.odata.example.Person;
 import org.springframework.stereotype.Component;
@@ -67,6 +69,11 @@ public class InMemoryDataSource implements DataSource {
             Person person = (Person) entity.get();
             personConcurrentMap.remove(person.getPersonId());
         }
+    }
+
+    @Override
+    public TransactionalDataSource startTransaction() {
+        throw new ODataSystemException("No support for transactions");
     }
 
     public ConcurrentMap<String, Person> getPersonConcurrentMap() {
