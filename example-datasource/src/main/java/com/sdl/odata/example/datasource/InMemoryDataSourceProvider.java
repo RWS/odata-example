@@ -34,6 +34,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.sdl.odata.api.processor.query.QueryResult.from;
+
 /**
  * This is an example data source provide that uses in memory structures to demonstrate how to provide
  * entities, storing and querying capabilities to the OData v4 framework.
@@ -71,7 +73,7 @@ public class InMemoryDataSourceProvider implements DataSourceProvider {
 
             LOG.debug("Found {} persons matching query", filteredPersons.size());
 
-            return filteredPersons;
+            return from(filteredPersons);
         };
     }
 }
