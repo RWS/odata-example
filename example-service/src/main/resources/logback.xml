@@ -8,7 +8,7 @@
 
     <!-- Loggers -->
     <logger name="com.sdl.odata.example" level="debug"/>
-    <logger name="com.sdl.odata" level="debug"/>
+    <logger name="com.sdl.odata" level="info"/>
 
     <root level="ERROR">
         <appender-ref ref="STDOUT"/>
