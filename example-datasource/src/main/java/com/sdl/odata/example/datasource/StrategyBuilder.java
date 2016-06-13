@@ -20,11 +20,13 @@ import com.sdl.odata.api.ODataSystemException;
 import com.sdl.odata.api.parser.CountOption;
 import com.sdl.odata.api.parser.ODataUriUtil;
 import com.sdl.odata.api.parser.QueryOption;
-import com.sdl.odata.api.processor.query.ComparisonCriteria;
 import com.sdl.odata.api.processor.query.CountOperation;
+import com.sdl.odata.api.processor.query.ComparisonCriteria;
+import com.sdl.odata.api.processor.query.ComparisonOperator;
 import com.sdl.odata.api.processor.query.Criteria;
 import com.sdl.odata.api.processor.query.CriteriaFilterOperation;
 import com.sdl.odata.api.processor.query.ExpandOperation;
+import com.sdl.odata.api.processor.query.GtOperator$;
 import com.sdl.odata.api.processor.query.LimitOperation;
 import com.sdl.odata.api.processor.query.LiteralCriteriaValue;
 import com.sdl.odata.api.processor.query.OrderByOperation;
@@ -161,6 +163,10 @@ public class StrategyBuilder {
         Criteria criteria = criteriaFilterOperation.getCriteria();
         if(criteria instanceof ComparisonCriteria) {
             ComparisonCriteria comparisonCriteria = (ComparisonCriteria) criteria;
+            ComparisonOperator operator = comparisonCriteria.getOperator();
+            if(operator instanceof GtOperator$) {
+                LOG.info("Greater then operator");
+            }
 
             //For now we only support here property key/value comparisons, just to keep the example simple
             if(comparisonCriteria.getLeft() instanceof PropertyCriteriaValue
