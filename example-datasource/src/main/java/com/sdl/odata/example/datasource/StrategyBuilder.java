@@ -17,6 +17,10 @@ package com.sdl.odata.example.datasource;
 
 import com.sdl.odata.api.ODataException;
 import com.sdl.odata.api.ODataSystemException;
+import com.sdl.odata.api.parser.CountOption;
+import com.sdl.odata.api.parser.ODataUriUtil;
+import com.sdl.odata.api.parser.QueryOption;
+import com.sdl.odata.api.processor.query.CountOperation;
 import com.sdl.odata.api.processor.query.ComparisonCriteria;
 import com.sdl.odata.api.processor.query.ComparisonOperator;
 import com.sdl.odata.api.processor.query.Criteria;
@@ -32,9 +36,11 @@ import com.sdl.odata.api.processor.query.SelectByKeyOperation;
 import com.sdl.odata.api.processor.query.SelectOperation;
 import com.sdl.odata.api.processor.query.SelectPropertiesOperation;
 import com.sdl.odata.api.processor.query.SkipOperation;
+import com.sdl.odata.api.service.ODataRequestContext;
 import com.sdl.odata.example.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.collection.Iterator;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -50,15 +56,36 @@ public class StrategyBuilder {
 
     private List<Predicate<Person>> predicates = new ArrayList<>();
     private int limit = Integer.MAX_VALUE;
+    private int skip = 0;
+    private boolean count;
+    private boolean includeCount;
+    private List<String> propertyNames;
 
-    public List<Predicate<Person>> buildCriteria(QueryOperation queryOperation) throws ODataException {
+    public List<Predicate<Person>> buildCriteria(QueryOperation queryOperation, ODataRequestContext requestContext)
+            throws ODataException {
         buildFromOperation(queryOperation);
-
+        buildFromOptions(ODataUriUtil.getQueryOptions(requestContext.getUri()));
         return predicates;
     }
 
     public int getLimit() {
         return limit;
+    }
+
+    public int getSkip() {
+        return skip;
+    }
+
+    public boolean isCount() {
+        return count;
+    }
+
+    public boolean includeCount() {
+        return includeCount;
+    }
+
+    public List<String> getPropertyNames() {
+        return propertyNames;
     }
 
     private void buildFromOperation(QueryOperation operation) throws ODataException {
@@ -70,22 +97,53 @@ public class StrategyBuilder {
             buildFromFilter((CriteriaFilterOperation)operation);
         } else if (operation instanceof LimitOperation) {
             buildFromLimit((LimitOperation) operation);
+        } else if (operation instanceof CountOperation) {
+            buildFromCount((CountOperation) operation);
         } else if (operation instanceof SkipOperation) {
-            //not supported for now
+            buildFromSkip((SkipOperation) operation);
         } else if (operation instanceof ExpandOperation) {
             //not supported for now
         } else if (operation instanceof OrderByOperation) {
             //not supported for now
         } else if (operation instanceof SelectPropertiesOperation) {
-            //not supported for now
+            buildFromSelectProperties((SelectPropertiesOperation) operation);
         } else {
             throw new ODataSystemException("Unsupported query operation: " + operation);
         }
     }
 
+    private void buildFromOptions(scala.collection.immutable.List<QueryOption> queryOptions) {
+        Iterator<QueryOption> optIt = queryOptions.iterator();
+        while (optIt.hasNext()) {
+            QueryOption opt = optIt.next();
+            if (opt instanceof CountOption && ((CountOption) opt).value()) {
+                includeCount = true;
+                break;
+            }
+        }
+    }
+
+    private void buildFromSelectProperties(SelectPropertiesOperation operation) throws ODataException {
+        this.propertyNames = operation.getPropertyNamesAsJava();
+        LOG.debug("Selecting properties: {}", propertyNames);
+        buildFromOperation(operation.getSource());
+    }
+
     private void buildFromLimit(LimitOperation operation) throws ODataException {
         this.limit = operation.getCount();
         LOG.debug("Limit has been set to: {}", limit);
+        buildFromOperation(operation.getSource());
+    }
+
+    private void buildFromSkip(SkipOperation operation) throws ODataException {
+        this.skip = operation.getCount();
+        LOG.debug("Skip has been set to: {}", limit);
+        buildFromOperation(operation.getSource());
+    }
+
+    private void buildFromCount(CountOperation operation) throws ODataException {
+        this.count = true;
+        LOG.debug("Counting {} records", operation.getSource().entitySetName());
         buildFromOperation(operation.getSource());
     }
 
@@ -141,7 +199,4 @@ public class StrategyBuilder {
             return null;
         }
     }
-
-
-
 }

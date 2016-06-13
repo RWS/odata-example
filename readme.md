@@ -5,7 +5,7 @@ There are several ways to start the OData Service, in this demo we have made thi
 
 ### From Maven
 It is quite easy to run the example service from the command line, the example utilises Spring-Boot which allows
-running the service using a single packed jar. 
+running the service using a single packed jar.
 
 In order to run the example, in the cloned git repository execute the following maven command:
 ```bash
@@ -31,7 +31,7 @@ curl -i -X POST -d @src/samples/mickey.json http://localhost:8080/example.svc/Pe
 
 The content structure that is posted looks as follows:  
 ```json
-{ 
+{
     "@odata.context" : "http://localhost:8080/example.svc/$metadata#/Persons/$entity",  
     "@odata.id" : "/Persons(55)",  
     "id" : 55,  
@@ -44,7 +44,7 @@ The content structure that is posted looks as follows:
 We also have two more Persons (Donald and Scrooge), which you can post as following:
 
 ```bash
-curl -i -X POST -d @src/samples/donald.json http://localhost:8080/example.svc/Persons --header "Content-Type:application/json"          
+curl -i -X POST -d @src/samples/donald.json http://localhost:8080/example.svc/Persons --header "Content-Type:application/json"
 ```
 
 ```bash
