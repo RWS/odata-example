@@ -21,6 +21,7 @@ import com.sdl.odata.api.parser.ODataUri;
 import com.sdl.odata.api.parser.ODataUriUtil;
 import com.sdl.odata.api.processor.datasource.DataSource;
 import com.sdl.odata.api.processor.datasource.ODataDataSourceException;
+import com.sdl.odata.api.processor.datasource.TransactionalDataSource;
 import com.sdl.odata.api.processor.link.ODataLink;
 import com.sdl.odata.example.Person;
 import org.springframework.stereotype.Component;
@@ -81,5 +82,11 @@ public class InMemoryDataSource implements DataSource {
     @Override
     public void deleteLink(ODataUri oDataUri, ODataLink oDataLink, EntityDataModel entityDataModel) throws ODataException {
 
+    }
+
+    @Override
+    public TransactionalDataSource startTransaction() {
+        // Not implemented
+        return null;
     }
 }
